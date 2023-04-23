@@ -6,6 +6,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.ClientApp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.ResourceServer", "ITA.OIDC.Workshop.ResourceServer\ITA.OIDC.Workshop.ResourceServer.csproj", "{A3F7B22C-7B44-444B-A768-34A5DCFB8482}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2256D4E0-48F7-430E-B15F-F59D85DB37FE}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
