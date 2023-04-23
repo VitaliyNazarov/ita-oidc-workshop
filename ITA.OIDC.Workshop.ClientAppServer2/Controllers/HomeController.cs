@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Security.Claims;
 using ITA.OIDC.Workshop.ClientAppServer2.Clients;
 using Microsoft.AspNetCore.Mvc;
 using ITA.OIDC.Workshop.ClientAppServer2.Models;
@@ -31,43 +30,9 @@ public class HomeController : Controller
     {
         return View();
     }
-    
-    [HttpGet]
-    [AllowAnonymous]
-    public IActionResult Login(string? returnUrl = null)
-    {
-        return View(new LoginModel
-        {
-            ReturnUrl = returnUrl
-        });
-    }
-    
-    [HttpPost]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login(LoginModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-        
-        //TODO: Проверяем логин и пароль пользователя.
 
-        // Пользователь аутентифицирован. По данным пользователя создаем ClaimsPrincipal.
-        var claims = new List<Claim>();
-        claims.Add(new Claim("sub", model.Login));
-        claims.Add(new Claim("name", model.Login));
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, "name", null);
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity));
-        
-        return Redirect(model.ReturnUrl ?? "/");
-    }
-    
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

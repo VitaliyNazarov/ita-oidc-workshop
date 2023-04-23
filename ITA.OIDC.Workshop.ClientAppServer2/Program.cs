@@ -14,7 +14,7 @@ const string authCookieName = ".ITA.ClientApp2.Cookie";
 const int authCookieLifetimeDays = 1;
 const string loginPageUrl = "/Home/Login";
 
-builder.Services.AddItaCookieAuthentication(authCookieName, basePath, authCookieLifetimeDays, loginPageUrl);
+builder.Services.AddItaAuthentication(authCookieName, basePath, authCookieLifetimeDays, loginPageUrl);
 
 var app = builder.Build();
 
