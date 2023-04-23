@@ -3,6 +3,23 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Client App 1</h1>
+    <table>
+        <caption>User claims</caption>
+        <tr>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Issuer</th>
+            <th>ValueType</th>
+        </tr>
+        @foreach (var claim in User.Claims)
+        {
+            <tr>
+                <td>@claim.Type</td>
+                <td><b>@claim.Value</b></td>
+                <td>@claim.Issuer</td>
+                <td>@claim.ValueType</td>
+            </tr>    
+        }
+    </table>
 </div>

@@ -1,27 +1,40 @@
-var builder = WebApplication.CreateBuilder(args);
+using ITA.OIDC.Workshop.ClientAppServer2.Extensions;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
+
+// Конфигурируем путь до API
+const string apiUrl = "http://localhost:5029";
+
+builder.Services.AddItaApiClient(apiUrl);
+
+// Аутентификация по куке
+const string basePath = "/ClientApp2";
+const string authCookieName = ".ITA.ClientApp2.Cookie";
+const int authCookieLifetimeDays = 1;
+const string loginPageUrl = "/Home/Login";
+
+builder.Services.AddItaCookieAuthentication(authCookieName, basePath, authCookieLifetimeDays, loginPageUrl);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UsePathBase(new PathString(basePath));
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"); 
 
 app.Run();

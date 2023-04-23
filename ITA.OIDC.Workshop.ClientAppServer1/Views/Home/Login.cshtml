@@ -1,0 +1,38 @@
+﻿@model LoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ru" style="width: 100%; height: 100%">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Вход</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    </environment>
+</head>
+<body style="display: flex; width: 100%; height: 100%; margin: 0">
+<form asp-action="Login" asp-controller="Home" asp-route-returnUrl="@Model.ReturnUrl" method="post" style="margin: auto">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="@Model.Login"></label>
+        <input asp-for="@Model.Login" class="form-control"/>
+        <span asp-validation-for="@Model.Login" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Password"></label>
+        <input type="password" asp-for="@Model.Password" class="form-control"/>
+        <span asp-validation-for="@Model.Password" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+</form>
+</body>
+</html>
