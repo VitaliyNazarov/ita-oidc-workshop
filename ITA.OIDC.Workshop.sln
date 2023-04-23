@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2256D4
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.AuthServer", "ITA.OIDC.Workshop.AuthServer\ITA.OIDC.Workshop.AuthServer.csproj", "{B759D1AB-8A4F-4678-8D4A-E7918F08E9B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +31,9 @@ Global
 		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B759D1AB-8A4F-4678-8D4A-E7918F08E9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B759D1AB-8A4F-4678-8D4A-E7918F08E9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B759D1AB-8A4F-4678-8D4A-E7918F08E9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B759D1AB-8A4F-4678-8D4A-E7918F08E9B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

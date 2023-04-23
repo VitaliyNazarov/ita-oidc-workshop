@@ -51,7 +51,7 @@ public class HomeController : Controller
             return View(model);
         }
         
-        //TODO: Проверяем логин и пароль пользователя.
+        //TODO: Проверяем логин и пароль пользователя в базе или через API.
 
         // Пользователь аутентифицирован. По данным пользователя создаем ClaimsPrincipal.
         var claims = new List<Claim>();

@@ -1,0 +1,14 @@
+﻿{
+  "profiles": {
+    "ITA.OIDC.Workshop.AuthServer": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5555",
+      "launchUrl": ".well-known/openid-configuration",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

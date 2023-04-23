@@ -1,0 +1,2 @@
+dotnet ef migrations add Initial_v1_0_1 -- ITAOIDCDB="server=localhost;port=5432;database=ITAOIDCDB;username=sa;password=123456qweRTY"
+dotnet ef database update -- ITAOIDCDB="server=localhost;port=5432;database=ITAOIDCDB;username=sa;password=123456qweRTY"
