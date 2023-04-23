@@ -45,3 +45,15 @@
 
 - OIDC Discovery URL (http://localhost:5555/.well-known/openid-configuration)
 - OIDC JWKS URL (http://localhost:5555/.well-known/jwks)
+
+
+## Шаг 3
+
+### Клиенты OIDC
+
+- Определяем тип клиентов (**confidential**, public)
+- Регистрируем приложения клиенты в OIDC
+  * ClientAppServer1
+  * ClientAppServer2
+  * Postman (для отладки)
+- Изменяем аутентификацию в клиентах

@@ -1,4 +1,5 @@
 ﻿using ITA.OIDC.Workshop.AuthServer.DataAccess;
+using ITA.OIDC.Workshop.AuthServer.Oidc;
 using OpenIddict.Abstractions;
 
 namespace ITA.OIDC.Workshop.AuthServer.Extensions;
@@ -8,7 +9,7 @@ internal static class ServiceCollectionExtensions
     internal static IServiceCollection AddItaOidcServer(this IServiceCollection services, string issuer)
     {
         // 1. Регистрация контекста с которым будет работать BL OpenIddict
-        services.AddDbContext<OidcDbContext>();
+        services.AddItaDataAccess();
         
         // 2. Регистрация Identity компонент
         services
@@ -75,6 +76,9 @@ internal static class ServiceCollectionExtensions
                 options.UseLocalServer();
                 options.UseAspNetCore();
             });
+
+        // Регистрация клиентов
+        services.AddHostedService<ClientsRegistrar>();
         
         return services;
     }
