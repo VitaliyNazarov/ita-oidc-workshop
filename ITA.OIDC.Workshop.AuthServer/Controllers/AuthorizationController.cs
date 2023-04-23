@@ -90,14 +90,12 @@ public class AuthorizationController : Controller
                 });
         }
 
-        // Retrieve the profile of the logged in user.
-        var user = await _userManager.GetUserAsync(result.Principal) ??
-                   throw new InvalidOperationException("The user details cannot be retrieved.");
+        // Преобразуем информацию из ClaimsPrincipal в ExternalUser
+        var user = ConvertTo(User);
 
         // Retrieve the application details from the database.
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!) ??
-                          throw new InvalidOperationException(
-                              "Details concerning the calling client application cannot be found.");
+                          throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
         // Retrieve the permanent authorizations associated with the user and the calling client application.
         var authorizations = await _authorizationManager.FindAsync(
@@ -205,6 +203,33 @@ public class AuthorizationController : Controller
         throw new InvalidOperationException("The specified grant type is not supported.");
     }
     #endregion
+
+    private ExternalUser ConvertTo(ClaimsPrincipal principal)
+    {
+        var userId = principal.FindFirstValue(Claims.Subject);
+        var email = principal.FindFirstValue(Claims.Email);
+        var userName = principal.FindFirstValue(Claims.Username);
+        var roles = principal.FindAll(Claims.Role).Select(x => x.Value).ToArray();
+        var phone = principal.FindFirstValue(Claims.PhoneNumber);
+        var fullName = principal.FindFirstValue(Claims.Name);
+
+        return new ExternalUser
+        {
+            Id = userId,
+            UserName = userName,
+            Email = email,
+            Roles = roles,
+            FullName = fullName,
+            PhoneNumber = phone,
+
+            EmailConfirmed = false,
+            LockoutEnabled = false,
+            PhoneNumberConfirmed = false,
+            TwoFactorEnabled = false,
+            NormalizedEmail = email.ToUpper(),
+            NormalizedUserName = email.ToUpper(),
+        };
+    }
 
     private IEnumerable<string> GetDestinations(Claim claim)
     {
