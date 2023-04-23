@@ -81,7 +81,7 @@ public class AuthorizationController : Controller
                 : Request.Query.Where(parameter => parameter.Key != Parameters.Prompt).ToList();
 
             parameters.Add(KeyValuePair.Create(Parameters.Prompt, new StringValues(prompt)));
-
+            
             return Challenge(
                 authenticationSchemes: IdentityConstants.ApplicationScheme,
                 properties: new AuthenticationProperties
