@@ -7,16 +7,15 @@ internal static class ServiceCollectionExtensions
 {
     internal static IServiceCollection AddItaOidcServer(this IServiceCollection services, string issuer)
     {
-        // 1. Регистрация контекста с которым будет работать BL OpenIddict
         services.AddDbContext<OidcDbContext>();
         
-        // 2. Регистрация Identity компонент
+        // 1. Регистрация Identity компонент
         services
             .AddIdentity<ExternalUser, ExternalRole>() // Свой класс пользователей и ролей
             .AddUserStore<ExternalUserStore>()         // Свой класс - хранилище пользователей
             .AddRoleStore<ExternalRoleStore>();        // Свой класс - хранилище ролей
 
-        // 3. Регистрация OpenIddict компонент
+        // 2. Регистрация OpenIddict компонент
         services.AddOpenIddict()
             .AddCore(builder =>
             {
@@ -26,19 +25,18 @@ internal static class ServiceCollectionExtensions
             })
             .AddServer(builder =>
             {
-                // Устанавливаем издателя
+                // 3. Устанавливаем издателя
                 builder.SetIssuer(new Uri(issuer));
 
-                // Какие endpoints поддерживает сервер?
+                // 4. Какие endpoints поддерживает сервер?
                 builder.SetAuthorizationEndpointUris("connect/authorize")
-                    .SetLogoutEndpointUris("connect/logout")
                     .SetTokenEndpointUris("connect/token")
                     .SetUserinfoEndpointUris("connect/userinfo");
 
-                // Какие flows поддерживает сервер?
+                // 5. Какие flows поддерживает сервер?
                 builder.AllowAuthorizationCodeFlow();
                 
-                // Какие scopes поддерживает сервер?
+                // 6. Какие scopes поддерживает сервер?
                 builder.RegisterScopes(
                     OpenIddictConstants.Scopes.Email,
                     OpenIddictConstants.Scopes.Address,
@@ -47,16 +45,14 @@ internal static class ServiceCollectionExtensions
                     OpenIddictConstants.Scopes.Roles,
                     OpenIddictConstants.Scopes.OpenId,
                     OpenIddictConstants.Scopes.OfflineAccess);
-
-                // Регистриуем специфичные для ASP.NET Core зависимости.
+                
                 builder.UseAspNetCore()
                     .EnableStatusCodePagesIntegration()
                     .EnableAuthorizationEndpointPassthrough()
-                    .EnableLogoutEndpointPassthrough()
                     .EnableTokenEndpointPassthrough()
                     .EnableUserinfoEndpointPassthrough();
 
-                // Регистрируем сертификаты для шифрования и подписи.
+                // 7.Регистрируем сертификаты для шифрования и подписи.
                 // Для демо используем автогенерацию сертификатов.
                 builder
                     .AddDevelopmentEncryptionCertificate()
