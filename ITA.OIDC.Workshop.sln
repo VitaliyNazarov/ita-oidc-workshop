@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.ClientAppServer1", "ITA.OIDC.Workshop.ClientAppServer1\ITA.OIDC.Workshop.ClientAppServer1.csproj", "{ABA82CC2-1AF3-4AD9-B32F-ADF32952023E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.ClientAppServer2", "ITA.OIDC.Workshop.ClientAppServer2\ITA.OIDC.Workshop.ClientAppServer2.csproj", "{2CD9346C-BAB9-4774-B448-D90071BABFC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITA.OIDC.Workshop.ResourceServer", "ITA.OIDC.Workshop.ResourceServer\ITA.OIDC.Workshop.ResourceServer.csproj", "{A3F7B22C-7B44-444B-A768-34A5DCFB8482}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABA82CC2-1AF3-4AD9-B32F-ADF32952023E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABA82CC2-1AF3-4AD9-B32F-ADF32952023E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABA82CC2-1AF3-4AD9-B32F-ADF32952023E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABA82CC2-1AF3-4AD9-B32F-ADF32952023E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CD9346C-BAB9-4774-B448-D90071BABFC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CD9346C-BAB9-4774-B448-D90071BABFC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CD9346C-BAB9-4774-B448-D90071BABFC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CD9346C-BAB9-4774-B448-D90071BABFC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3F7B22C-7B44-444B-A768-34A5DCFB8482}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

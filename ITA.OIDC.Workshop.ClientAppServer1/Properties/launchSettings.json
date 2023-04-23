@@ -1,0 +1,13 @@
+﻿{
+  "profiles": {
+    "ITA.OIDC.Workshop.ClientAppServer1": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5091",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
