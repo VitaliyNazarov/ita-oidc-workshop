@@ -23,15 +23,7 @@ namespace ITA.OIDC.Workshop.AuthServer.DataAccess
 
             var optionsBuilder = new DbContextOptionsBuilder<OidcDbContext>();
             
-            optionsBuilder
-                .EnableDetailedErrors()
-                .UseNpgsql(
-                    connectionString,
-                    options => options
-                        .SetPostgresVersion(new Version(9, 6, 23))
-                        .CommandTimeout(30))
-                .UseSnakeCaseNamingConvention()
-                .UseOpenIddict();
+            optionsBuilder.SetUpPgContext(connectionString);
 
             return new OidcDbContext(optionsBuilder.Options);
         }

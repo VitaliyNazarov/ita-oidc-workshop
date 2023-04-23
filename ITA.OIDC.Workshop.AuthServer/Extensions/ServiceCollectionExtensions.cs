@@ -7,7 +7,7 @@ internal static class ServiceCollectionExtensions
 {
     internal static IServiceCollection AddItaOidcServer(this IServiceCollection services, string issuer)
     {
-        services.AddDbContext<OidcDbContext>();
+        services.AddItaDataAccess();
         
         // 1. Регистрация Identity компонент
         services
