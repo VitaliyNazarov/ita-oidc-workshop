@@ -12,9 +12,13 @@ internal static class ItaServiceCollectionExtensions
         this IServiceCollection services,
         string apiUrl)
     {
-        services.AddHttpClient<IApiClient, ApiClient>(client =>
+        services.AddHttpContextAccessor();
+        services.AddHttpClient<IApiClient, ApiClient>((client, provider) =>
         {
+            using var scope = provider.CreateScope();
+            var contextAccessor = scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>();
             client.BaseAddress = new Uri(apiUrl);
+            return new ApiClient(contextAccessor, client);
         });
         return services;
     }

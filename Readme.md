@@ -71,3 +71,20 @@
 ### Проверяем
 - В Postman (OIDC ACF)
 - SSO Login: выполнив вход в приложении 1 выполнять вход в приложение 2 не требуется
+
+
+## Шаг 4
+
+### Поддержка token-based auth в API
+
+- Подключаем Microsoft.AspNetCore.Authentication.JwtBearer
+- Настраиваем аутентификацию по токену `AddItaAuthentication`
+- Используем в контроллере [Authorize]
+
+
+### Изменения в клиентах
+- Из куки достаем access_token и помещаем при каждом запросе к API в заголовок Authorization
+
+### Проверяем
+
+- Вызов к API должен проходить

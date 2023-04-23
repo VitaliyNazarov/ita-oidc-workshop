@@ -20,8 +20,10 @@ public class HomeController : Controller
     }
 
     [Authorize]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        ViewData["access_token"] = await HttpContext.GetTokenAsync("access_token");
+        ViewData["id_token"] = await HttpContext.GetTokenAsync("id_token");
         return View();
     }
 
