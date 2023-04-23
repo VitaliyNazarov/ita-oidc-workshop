@@ -38,13 +38,12 @@
 
 - ASP.NET Core MVC ITA.OIDC.Workshop.AuthServer + OpenIddict + EF Core
 - Генерация модели для OpenIddict (EF Core), миграции
-- Подготовка сертификата (production mode)
 - Конфигурация сервера
 - Добавляем новвые контроллеры для сконфигурированных endpoints
   * [AuthorizationController](https://github.com/openiddict/openiddict-core/blob/dev/sandbox/OpenIddict.Sandbox.AspNetCore.Server/Controllers/AuthorizationController.cs)
   * [UserinfoController](https://github.com/openiddict/openiddict-core/blob/rel/4.2.0/sandbox/OpenIddict.Sandbox.AspNetCore.Server/Controllers/UserinfoController.cs)
   * [AccountController](https://github.com/openiddict/openiddict-core/blob/rel/4.2.0/sandbox/OpenIddict.Sandbox.AspNetCore.Server/Controllers/AccountController.cs)
-- Страница логина и логика переезжают в AuthServer (единый вход)
+- Страница логина и логика переезжают в AuthServer для обеспечиваем SSO
 
 ### Проверяем что сервере OIDC поднялся
 

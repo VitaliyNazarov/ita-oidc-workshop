@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 using ITA.OIDC.Workshop.AuthServer.DataAccess;
 using ITA.OIDC.Workshop.AuthServer.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,14 +11,10 @@ namespace ITA.OIDC.Workshop.AuthServer.Controllers;
 [Authorize]
 public class AccountController : Controller
 {
-    private readonly UserManager<ExternalUser> _userManager;
     private readonly SignInManager<ExternalUser> _signInManager;
 
-    public AccountController(
-        UserManager<ExternalUser> userManager,
-        SignInManager<ExternalUser> signInManager)
+    public AccountController(SignInManager<ExternalUser> signInManager)
     {
-        _userManager = userManager;
         _signInManager = signInManager;
     }
     
@@ -38,20 +35,40 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
-            var externalUser = await GetCurrentUserAsync();
+            // Аутентифицируем пользователя и получаем детальную информацию по API
+            var externalUser = new ExternalUser
+            {
+                Id = model.Login,
+                Email = $"{model.Login}@ita.com",
+                UserName = $"User{model.Login}",
+                Roles = new []{ "administrator" },
+                FullName = $"FullName {model.Login}"
+            };
             var additionalClaims = new Claim[] { };
             
+            // Указываем что пользователь externalUser является аутентифицированным 
             await _signInManager.SignInWithClaimsAsync(
                 externalUser,
                 model.RememberMe.GetValueOrDefault(false),
                 additionalClaims);
+
+            // Возвращаемся откуда пришли
+            return RedirectToLocal(returnUrl ?? model.ReturnUrl);
         }
 
         return View(model);
     }
 
-    private async Task<ExternalUser> GetCurrentUserAsync()
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
     {
-        return await _userManager.GetUserAsync(User);
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+    
+    private IActionResult RedirectToLocal(string? returnUrl)
+    {
+        return !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction("Login");
     }
 }
