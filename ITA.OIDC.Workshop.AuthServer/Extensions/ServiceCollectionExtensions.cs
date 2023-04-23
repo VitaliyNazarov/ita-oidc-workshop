@@ -1,4 +1,5 @@
 ﻿using ITA.OIDC.Workshop.AuthServer.DataAccess;
+using Microsoft.AspNetCore.Identity;
 using ITA.OIDC.Workshop.AuthServer.Oidc;
 using OpenIddict.Abstractions;
 
@@ -15,6 +16,15 @@ internal static class ServiceCollectionExtensions
             .AddIdentity<ExternalUser, ExternalRole>() // Свой класс пользователей и ролей
             .AddUserStore<ExternalUserStore>()         // Свой класс - хранилище пользователей
             .AddRoleStore<ExternalRoleStore>();        // Свой класс - хранилище ролей
+        
+        // Конфигурируем имена клеймов
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.ClaimsIdentity.UserIdClaimType = OpenIddictConstants.Claims.Subject;
+            options.ClaimsIdentity.UserNameClaimType = OpenIddictConstants.Claims.Username;
+            options.ClaimsIdentity.RoleClaimType = OpenIddictConstants.Claims.Role;
+            options.ClaimsIdentity.EmailClaimType = OpenIddictConstants.Claims.Email;
+        });
 
         // 2. Регистрация OpenIddict компонент
         services.AddOpenIddict()
