@@ -73,6 +73,8 @@ internal static class ServiceCollectionExtensions
                 builder
                     .UseAspNetCore()
                     .DisableTransportSecurityRequirement();
+                
+                builder.DisableAccessTokenEncryption();
             })
 
             // Регистрируем компоненты валидации.
