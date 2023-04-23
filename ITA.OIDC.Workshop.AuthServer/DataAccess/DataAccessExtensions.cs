@@ -6,7 +6,6 @@ namespace ITA.OIDC.Workshop.AuthServer.DataAccess
     {
         public static IServiceCollection AddItaDataAccess(this IServiceCollection services)
         {
-            //services.AddDbContext<OidcDbContext>();
             services.AddDbContextFactory<OidcDbContext>((provider, options) =>
             {
                 var configuration = provider.GetRequiredService<IConfiguration>();
