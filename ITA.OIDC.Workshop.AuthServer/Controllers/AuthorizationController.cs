@@ -37,6 +37,7 @@ public class AuthorizationController : Controller
     }
 
     #region Authorization code, implicit and hybrid flows
+
     // Note: to support interactive flows like the code flow,
     // you must provide your own authorization endpoint action:
 
@@ -81,7 +82,7 @@ public class AuthorizationController : Controller
                 : Request.Query.Where(parameter => parameter.Key != Parameters.Prompt).ToList();
 
             parameters.Add(KeyValuePair.Create(Parameters.Prompt, new StringValues(prompt)));
-            
+
             return Challenge(
                 authenticationSchemes: IdentityConstants.ApplicationScheme,
                 properties: new AuthenticationProperties
@@ -105,39 +106,20 @@ public class AuthorizationController : Controller
             type: AuthorizationTypes.Permanent,
             scopes: request.GetScopes()).ToListAsync();
 
-        // Create the claims-based identity that will be used by OpenIddict to generate tokens.
-        var identity = new ClaimsIdentity(
-            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            nameType: Claims.Name,
-            roleType: Claims.Role);
+        var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
-        // Add the claims that will be persisted in the tokens.
-        identity.SetClaim(Claims.Subject, await _userManager.GetUserIdAsync(user))
-            .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
-            .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
-            .SetClaims(Claims.Role, (await _userManager.GetRolesAsync(user)).ToImmutableArray());
-
-        // Note: in this sample, the granted scopes match the requested scope
-        // but you may want to allow the user to uncheck specific scopes.
-        // For that, simply restrict the list of scopes before calling SetScopes.
-        identity.SetScopes(request.GetScopes());
-        identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
-
-        // Automatically create a permanent authorization to avoid requiring explicit consent
-        // for future authorization or token requests containing the same scopes.
-        var authorization = authorizations.LastOrDefault();
-        authorization ??= await _authorizationManager.CreateAsync(
-            identity: identity,
+        var authorization = authorizations.LastOrDefault() ?? await _authorizationManager.CreateAsync(
+            principal: principal,
             subject: await _userManager.GetUserIdAsync(user),
             client: await _applicationManager.GetIdAsync(application) ?? string.Empty,
             type: AuthorizationTypes.Permanent,
-            scopes: identity.GetScopes());
+            scopes: request.GetScopes());
 
-        identity.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
-        identity.SetDestinations(GetDestinations);
+        principal.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
 
-        return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        await PreparePrincipalAsync(principal, user, request.GetScopes());
 
+        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
     #endregion
@@ -150,26 +132,15 @@ public class AuthorizationController : Controller
     public async Task<IActionResult> Exchange()
     {
         var request = HttpContext.GetOpenIddictServerRequest() ??
-            throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
-        
-        if (request.IsAuthorizationCodeGrantType())
+                      throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+
+        if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
         {
-            // Retrieve the claims principal stored in the authorization code token.
-            var result = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-
-            // Retrieve the user profile corresponding to the authorization code.
-            var user = await _userManager.FindByIdAsync(result.Principal!.GetClaim(Claims.Subject));
-            if (user is null)
-            {
-                return Forbid(
-                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string>
-                    {
-                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The token is no longer valid."
-                    }!));
-            }
-
+            // Retrieve the claims principal stored in the authorization code/device code/refresh token.
+            var authenticateResult = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                
+            var user = ConvertTo(authenticateResult.Principal!);
+                
             // Ensure the user is still allowed to sign in.
             if (!await _signInManager.CanSignInAsync(user))
             {
@@ -182,26 +153,17 @@ public class AuthorizationController : Controller
                     }!));
             }
 
-            var identity = new ClaimsIdentity(result.Principal!.Claims,
-                authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-                nameType: Claims.Name,
-                roleType: Claims.Role);
-
-            // Override the user claims present in the principal in case they
-            // changed since the authorization code was issued.
-            identity.SetClaim(Claims.Subject, await _userManager.GetUserIdAsync(user))
-                    .SetClaim(Claims.Email, await _userManager.GetEmailAsync(user))
-                    .SetClaim(Claims.Name, await _userManager.GetUserNameAsync(user))
-                    .SetClaims(Claims.Role, (await _userManager.GetRolesAsync(user)).ToImmutableArray());
-
-            identity.SetDestinations(GetDestinations);
+            var principal = authenticateResult.Principal!;
+                
+            await PreparePrincipalAsync(principal, user);
 
             // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
-            return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
         throw new InvalidOperationException("The specified grant type is not supported.");
     }
+
     #endregion
 
     private ExternalUser ConvertTo(ClaimsPrincipal principal)
@@ -230,27 +192,83 @@ public class AuthorizationController : Controller
             NormalizedUserName = email.ToUpper(),
         };
     }
-
-    private IEnumerable<string> GetDestinations(Claim claim)
+    
+    private async Task PreparePrincipalAsync(
+        ClaimsPrincipal principal,
+        ExternalUser user,
+        IEnumerable<string>? scopes = null,
+        CancellationToken cancellationToken = default)
     {
-        // Note: by default, claims are NOT automatically included in the access and identity tokens.
-        // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
-        // whether they should be included in access tokens, in identity tokens or in both.
+        if (scopes != null)
+        {
+            principal.SetScopes(scopes);
+            principal.SetResources(await _scopeManager.ListResourcesAsync(principal.GetScopes(), cancellationToken).ToListAsync());
+        }
+            
+        principal.SetClaim(Claims.Subject, user.Id);
+        principal.SetClaim(Claims.Email, user.Email);
+        principal.SetClaim(Claims.Name, user.FullName);
+        principal.SetClaim(Claims.Username, user.UserName);
+        principal.SetClaim(Claims.PhoneNumber, user.PhoneNumber);
 
+        SetClaimsDestination(principal);
+    }
+
+    private void SetClaimsDestination(ClaimsPrincipal principal)
+    {
+        foreach (var claim in principal.Claims)
+        {
+            claim.SetDestinations(GetDestinations(claim, principal).ToArray());
+        }
+    }
+
+    // scope=profile, claims =[organization_ogrn, organization_name, position, username, name]
+    // scope=email,  claims =[email, email_verified]
+    // scope=phone, claims=[phone, phone_verified]
+    // scope=roles, claims=[role]
+    private IEnumerable<string> GetDestinations(Claim claim, ClaimsPrincipal principal)
+    {
         switch (claim.Type)
         {
-            case Claims.Name:
+            case Claims.Issuer:
+            case Claims.Subject:
+            case Claims.Audience:
+            case Claims.AuthorizedParty:
                 yield return Destinations.AccessToken;
+                yield return Destinations.IdentityToken;
+                yield break;
 
-                if (claim.Subject!.HasScope(Scopes.Profile))
+            case Claims.ClientId:
+                yield return Destinations.AccessToken;
+                yield break;
+
+            case Claims.Username:
+            case Claims.Name:
+                if (principal.HasScope(Scopes.Profile))
+                    yield return Destinations.IdentityToken;
+
+                yield break;
+
+            case Claims.EmailVerified:
+                if (principal.HasScope(Scopes.Email))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             case Claims.Email:
-                yield return Destinations.AccessToken;
+                if (principal.HasScope(Scopes.Email))
+                    yield return Destinations.IdentityToken;
 
-                if (claim.Subject!.HasScope(Scopes.Email))
+                yield break;
+
+            case Claims.PhoneNumberVerified:
+                if (principal.HasScope(Scopes.Phone))
+                    yield return Destinations.IdentityToken;
+
+                yield break;
+
+            case Claims.PhoneNumber:
+                if (principal.HasScope(Scopes.Phone))
                     yield return Destinations.IdentityToken;
 
                 yield break;
@@ -258,9 +276,13 @@ public class AuthorizationController : Controller
             case Claims.Role:
                 yield return Destinations.AccessToken;
 
-                if (claim.Subject!.HasScope(Scopes.Roles))
+                if (principal.HasScope(Scopes.Roles))
                     yield return Destinations.IdentityToken;
 
+                yield break;
+
+            case Claims.Scope:
+                yield return Destinations.AccessToken;
                 yield break;
 
             // Never include the security stamp in the access and identity tokens, as it's a secret value.
